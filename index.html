@@ -1,35 +1,784 @@
-<!DOCTYPE html><html dir="ltr" lang="en" class="theme light classic"><head><base href="/date/"><meta charset="utf-8"><title>Date Availability App Idea</title><meta name="app-name" content="export_website"/><meta name="viewport" content="width=device-width, initial-scale=1"><link href="_assets/a0684b0780c739e9.vendor.ltr.css" rel="stylesheet" integrity="sha512-JwMCpiHdk95MoUTatfaZJwstzeDnWfvWMJiwnSxZfPmgeCe4yvQDQ+ONMQjIy/Ht72r0TmlE+gvZnYRnpdLdVg==" crossorigin="anonymous"><link href="_assets/b5436f1714f0ea40.ltr.css" rel="stylesheet" integrity="sha512-sG/H1Rx4iJ1LenRvrd9jo7xs/oVkQphXr7EKD9DiJC4zBpUQklFQpg/+t8eAlZcJ36PquASMRXLZR8vmWMRjjQ==" crossorigin="anonymous"><link href="_assets/static_font_4.ltr.css" rel="stylesheet"><link href="_assets/6739744745921553.runtime.js" rel="preload" as="script" crossorigin="anonymous" integrity="sha512-bqpY1LmdmlMpsHax/XmszZay4tC2HNNdrFh7UFETnnpQOqE7ET2Nt7pV6velBivkB8lbbwlK1OW14rFr/tCIPA==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"><link href="_assets/c0feee7212ef7ec1.i3d79q.vendor.js" rel="preload" as="script" crossorigin="anonymous" integrity="sha512-28VLsnzSrYuJHZcZS4tF/Vm43quL3JoVU591yX4OMeN65ce6A9IjvwR3BtwZHhvmCDvwDkREIIEow4jipBA70g==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"><link href="_assets/11cd5fb04d2af30e.vendor.js" rel="preload" as="script" crossorigin="anonymous" integrity="sha512-uKsoLg6Gbg2w3LJMmA1Eh6tolCWXk+wonzdhS/7DIaiRPCiOJeWfRyb+AlTYs/MswMJB0LND2zhQfYEufSCnOw==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"><link href="_assets/3f2d7eb029511bb4.strings.js" rel="preload" as="script" crossorigin="anonymous" integrity="sha512-l3KOEy6Q6p1WWWlLaE55JxDcTxauT4DH0WPTOu/Zmn/5/LHWRJi3rl/joqpjezai018C4TqyKHmQqsfDHiIuUg==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"><link href="_assets/593da3d70609cf53.en.js" rel="preload" as="script" crossorigin="anonymous" integrity="sha512-/PqLZOFLv1U5s/gzNjHQcoEKHpeH2E7DFwicqLeziO4w7wHuYqRPKE9U9N/mRSS330WsUjS6AOAzh8L0nIGrig==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"><link href="_assets/ae19f8025f2838ea.js" rel="preload" as="script" crossorigin="anonymous" integrity="sha512-umooGWchcO7yn8mWQwivmQiRdRm4FVLyXB2JeQlM1QV93LDX87tTtvM05gGZrR2ZdDg6SNn72LpdPABjjb7S3g==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"><meta name="referrer" content="strict-origin-when-cross-origin"><meta property="og:title" content="Date Availability App Idea"><meta property="og:type" content="website"><link rel="shortcut icon" href="_assets/images/2d0b56e7e51cf11036ad8734bdb67e2d.png"><link rel="icon" href="_assets/images/e53c4bd8da5e491d9ab09e7cf0daf874.png" sizes="192x192"><link rel="apple-touch-icon" href="_assets/images/725b756a69a7d4c235070e51acd85560.png" sizes="180x180"><script nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7">
-      document.addEventListener('contextmenu', (e) => {
-        const isMedia = ['img', 'image', 'video', 'svg', 'picture'].some(
-          tagName => tagName.localeCompare(e.target.tagName, undefined, { sensitivity: 'base' }) === 0,
-        );
-        isMedia && e.preventDefault();
-      });
-    </script><script nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7">
-  const lang = navigator.language ? navigator.language : 'en';
-  window.canva_installFooter = (container) => {
-    if (!(container instanceof HTMLDivElement)) {
-      return;
-    }
-    fetch('_footer?lang=' + encodeURIComponent(lang)).then(response => {
-      if (response.status !== 200) {
-        return;
-      }
-      response.text().then(footerStr => {
-        const div = document.createElement('div');
-        div.innerHTML = footerStr;
-        for (const child of [...div.children]) {
-          if (child.tagName.toLowerCase() !== 'script') {
-            container.append(child);
-          }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Availability Collector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .calendar-day {
+            transition: all 0.2s ease;
         }
+        .calendar-day:hover:not(.past-date) {
+            transform: scale(1.05);
+        }
+        .selected {
+            background-color: #4ade80 !important;
+            color: #064e3b !important;
+        }
+        .past-date {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .person-tag {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .date-chip {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .highlight-date {
+            background-color: #c7d2fe;
+            border: 2px solid #4f46e5;
+        }
+        .toast {
+            animation: toastIn 0.3s ease-out forwards, toastOut 0.3s ease-in forwards 3s;
+            pointer-events: none;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        .log-entry {
+            animation: fadeInUp 0.4s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4 md:p-8">
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden">
+        Data saved successfully!
+    </div>
 
-        (() => { !function(e){"use strict";const t=document.getElementById("modal_backdrop"),n=document.getElementById("modal"),o=document.getElementById("captcha-form"),c=document.getElementById("report_button"),d=document.getElementById("form_report"),s=document.getElementById("form_cancel"),l=document.getElementById("form_submit_reason"),a=document.getElementById("form_go_back"),r=document.getElementById("form_submit_captcha"),m=document.getElementById("form_close"),i=document.getElementById("form_close_initial"),u=document.getElementById("report_reason_0"),p=document.getElementById("error_message"),_=document.getElementById("error_message_captcha"),y=new Map;y.set(0,document.getElementById("form_step_terms")),y.set(1,document.getElementById("form_step_report_reason")),y.set(4,document.getElementById("form_step_report_other"));const E=document.getElementById("form_step_report_ip");E&&y.set(5,E),y.set(2,document.getElementById("form_step_captcha")),y.set(3,document.getElementById("form_step_success"));const f=document.getElementById("report_reason_4"),g=document.getElementById("form_close_ip"),h=document.getElementById("form_go_back_ip"),I=document.getElementById("report_reason_other"),k=document.getElementById("form_close_other"),w=document.getElementById("form_go_back_other");function v(){t.classList.remove("active"),n.classList.remove("active"),c.classList.remove("active"),c.focus()}function B(e){y.forEach(((t,n)=>{n===e?(t.style.display="block",L(t)):t.style.display="none"}))}let b,C=!1;const T="NETEASE"===window.C_CAPTCHA_IMPLEMENTATION?()=>b:()=>{const e=o.elements.namedItem("g-recaptcha-response");return null==e?void 0:e.value};t.onclick=v,s.onclick=v,m.onclick=v,i.onclick=v,g&&(g.onclick=v),k.onclick=v,c.onclick=function(){y.forEach(((e,t)=>{e.style.display=0===t?"block":"none"})),t.classList.add("active"),n.classList.add("active"),c.classList.add("active"),u.checked=!0,setTimeout((()=>{L(y.get(0))}),350)},d.onclick=d.dataset.reportUrl?function(){const{origin:e,pathname:t}=window.location,n=e+t,o=d.dataset.reportUrl+encodeURIComponent(n);window.open(o)}:()=>B(1),l.onclick=()=>{null!=E&&f.checked?B(5):I.checked?B(4):(B(2),function(){if(C)return;const e=document.createElement("script");e.src="NETEASE"===window.C_CAPTCHA_IMPLEMENTATION?"https://cstaticdun.126.net/load.min.js":"https://www.google.com/recaptcha/api.js",e.async=!0,e.defer=!0,document.head.appendChild(e),C=!0,e.onload="NETEASE"===window.C_CAPTCHA_IMPLEMENTATION?()=>{var e;null===(e=window.initNECaptcha)||void 0===e||e.call(window,{captchaId:window.C_CAPTCHA_KEY,element:"#netease-captcha",protocol:"https",width:"auto",onVerify:(e,t)=>{b=t.validate}})}:()=>{}}())},a.onclick=()=>B(1),h&&(h.onclick=()=>B(1)),w.onclick=()=>B(1),o.addEventListener("submit",(function(e){e.preventDefault(),p.style.display="none",_.style.display="none";const t=function(){let e="";const t=document.getElementsByName("report_reason");for(let n=0;n<t.length;n++){const o=t[n];o.checked&&(e=o.value)}return e}(),n=T();if(!n)return void(_.style.display="block");const o={reason:t,challenge:n},c=window.location.origin+window.location.pathname+"/_api/report";r.classList.add("loading"),fetch(c,{method:"POST",body:JSON.stringify(o),headers:{"Content-Type":"application/json; charset=utf-8"}}).then((e=>{r.classList.remove("loading"),e.ok?B(3):p.style.display="block"}))}));const A=new Map,L=e=>{const t=A.get(e);null!=t&&document.removeEventListener("keydown",t);const n=e.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),o=e,c=n[n.length-1],d=function(e){("Tab"===e.key||9===e.keyCode)&&(e.shiftKey?document.activeElement===o&&(c.focus(),e.preventDefault()):document.activeElement===c&&(o.focus(),e.preventDefault()))};A.set(e,d),document.addEventListener("keydown",d),o.focus()};e.keepFocus=L,Object.defineProperty(e,"__esModule",{value:!0})}({}); })();
-      });
-    });
-  }
-</script><script nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7">
-    window.C_CAPTCHA_IMPLEMENTATION = 'RECAPTCHA';
-</script><script nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7">
-    window.C_CAPTCHA_KEY = '6Ldk59waAAAAAMPqkICbJjfMivZLCGtTpa6Wn6zO';
-</script></head><body><script nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7">document.documentElement.classList.replace('adaptive', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');</script><div id="root"></div><script nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7">(function() {window['__canva_public_path__'] = '_assets\/'; window['bootstrap'] = JSON.parse('{"base":{"A?":"B","L":false,"N":false,"E":"b4b593e7e3be7938f94fb364ee3cebb4f48843a3","K":1749562286,"F":{"A?":"B"},"G":"CLIENT_FULL","I":"A","O":{"A?":"B"},"M":"/_online","U":[],"V":[],"a":{"K":"export_website","H":{}},"d":{"A":"wss://www.canva.com/_stream","B":{"F":"export_website"}},"b":{"A?":"H","C":{"a":"WEB"},"D":{"a":"WEB","c":"en"},"E":{},"P":[],"Q":[],"R":false,"S":false}},"page":{"A":{"B":{"A?":"A","A":"TAGcbLa0hys","B":1},"C":{"A":1366.0,"B":768.0,"C":"D"},"Q":[],"R":[],"P":"en","D":"Date Availability App Idea","E":"","F":[],"G":{},"Y":{},"a":[],"b":[],"V":[],"W":[],"A":[{"A?":"j","Z":{"A?":"A","A":"TAGcbLa0hys","B":1},"a":"PBbyQqMZC4gCyDL1","R":false,"S":false,"U":false,"Q":{},"v":"B","t":[{"A?":"i","a":"PBCQxhzR5SV8nfMs","R":false,"S":false,"U":false,"Q":{},"W":[],"X":[],"H":[],"L":{},"C":{"A":1366.0,"B":768.0,"C":"D"},"D":{"C":"#ffffff","D":0.0,"F":false,"J":false,"G":false,"H":false},"r":[],"E":[{"A?":"O","A":0.0,"B":0.0,"D":1366.0,"C":768.0,"E":0.0,"F":0.0,"BA":[],"BB":[],"Q":false,"S":false,"P":[],"5":{},"T":{},"W":{},"a":"_website-element-widget?version=v2&pageIndex=0&elementIndex=0&elementType=C&locale=en","b":1366.0,"c":768.0}],"I":[]}],"u":[],"L":{}}],"I":[]},"Z":{"A?":"E","M":"en","e":false,"f":{"B":"#ffffff","C":"#304254"},"g":[{"A?":"A","K":"PBbyQqMZC4gCyDL1","L":"/","e":{"A":true}}]},"B":[{"A":"YACgEZ1cb1Q","B":0,"C":"Arimo","D":[{"style":"BOLD_ITALICS","files":[{"url":"_assets/fonts/1060345c54d396e76d73f1da7ee200bd.woff2","format":"WOFF2","unicodeRanges":[],"sizeBytes":203232},{"url":"_assets/fonts/4de29305db46625343735e840e3d27aa.otf","format":"OTF","unicodeRanges":[],"sizeBytes":435028},{"url":"_assets/fonts/7fc2786f9023d4d812357cb787e9ad4b.woff","format":"WOFF","unicodeRanges":[],"sizeBytes":237660}],"subsettedFiles":[],"scriptSubsetFiles":[],"metadata":{"head":{"unitsPerEm":2048,"yMin":-771,"yMax":2109},"hhea":{"ascender":1854,"descender":-434,"lineGap":67},"os2":{"sTypoAscender":1491,"sTypoDescender":-431,"sTypoLineGap":307,"usWinAscent":1854,"usWinDescent":434,"fsSelection":33}}},{"style":"REGULAR","files":[{"url":"_assets/fonts/f8f199f09526f79e87644ed227e0f651.woff2","format":"WOFF2","unicodeRanges":[],"sizeBytes":194188},{"url":"_assets/fonts/4ff8a742aa834e35f10ead140b735c45.woff","format":"WOFF","unicodeRanges":[],"sizeBytes":234380},{"url":"_assets/fonts/daee28464eba92254cb149feea6599e3.otf","format":"OTF","unicodeRanges":[],"sizeBytes":436180}],"subsettedFiles":[],"scriptSubsetFiles":[],"metadata":{"head":{"unitsPerEm":2048,"yMin":-621,"yMax":2007},"hhea":{"ascender":1854,"descender":-434,"lineGap":67},"os2":{"sTypoAscender":1491,"sTypoDescender":-431,"sTypoLineGap":307,"usWinAscent":1854,"usWinDescent":434,"fsSelection":64}}},{"style":"BOLD","files":[{"url":"_assets/fonts/9fd726aeae98b22824f0dc8947036e77.woff","format":"WOFF","unicodeRanges":[],"sizeBytes":234696},{"url":"_assets/fonts/0bb563f2f60ffd4e62b64cb021c33776.otf","format":"OTF","unicodeRanges":[],"sizeBytes":438516},{"url":"_assets/fonts/98c4d2c0223fc8474641c77f923528e9.woff2","format":"WOFF2","unicodeRanges":[],"sizeBytes":194064}],"subsettedFiles":[],"scriptSubsetFiles":[],"metadata":{"head":{"unitsPerEm":2048,"yMin":-771,"yMax":2116},"hhea":{"ascender":1854,"descender":-434,"lineGap":67},"os2":{"sTypoAscender":1491,"sTypoDescender":-431,"sTypoLineGap":307,"usWinAscent":1854,"usWinDescent":434,"fsSelection":32}}},{"style":"ITALICS","files":[{"url":"_assets/fonts/79d14bb61301a10c73c6cb293c29b309.otf","format":"OTF","unicodeRanges":[],"sizeBytes":440740},{"url":"_assets/fonts/ac9b8a560f98d1757a4565a2419d33c3.woff","format":"WOFF","unicodeRanges":[],"sizeBytes":240632},{"url":"_assets/fonts/d257a7100844bc3f98c9021168b6249e.woff2","format":"WOFF2","unicodeRanges":[],"sizeBytes":201132}],"subsettedFiles":[],"scriptSubsetFiles":[],"metadata":{"head":{"unitsPerEm":2048,"yMin":-621,"yMax":2077},"hhea":{"ascender":1854,"descender":-434,"lineGap":67},"os2":{"sTypoAscender":1491,"sTypoDescender":-425,"sTypoLineGap":307,"usWinAscent":1854,"usWinDescent":434,"fsSelection":1}}}],"E":false}],"E":[],"F":[],"G":[],"H":[{"A":"https://www.canva-hosted-embed.com/codelet/bdk9y5014wxzd2w8","Q":false,"B":"Canva","D":1749562286086,"E":"\x3ciframe src=\\"https://bdk9y5014wxzd2w8.canva-hosted-embed.com/codelet/AAEAEGJkazl5NTAxNHd4emQydzgAAAAAAZdfMDwGpekIfPzozLEh8rMboXFpLI3iSzHVu0qdMvLIiedLLfU/\\" sandbox=\\"allow-same-origin allow-scripts allow-popups allow-forms\\" allowfullscreen=\\"true\\" width=\\"800\\" height=\\"450\\" style=\\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px;\\" allow=\\"fullscreen\\">\x3c/iframe>","F":1366,"G":768},{"A":"_website-element-widget?version=v2&pageIndex=0&elementIndex=0&elementType=C&locale=en","Q":false,"B":"Canva","D":1749562286175,"E":"\x3ciframe src=\\"_website-element-widget?version=v2&pageIndex=0&elementIndex=0&elementType=C&locale=en\\" width=\\"1366\\" height=\\"768\\" frameborder=\\"0\\" sandbox=\\"allow-same-origin allow-scripts allow-popups allow-forms allow-popups-to-escape-sandbox\\">\x3c/iframe>","F":1366,"G":768}],"S":[],"K":{"B":"#ffffff","C":"#304254"},"Q":{"A":false,"B":true,"M":true},"R":false,"T":true,"U":false,"V":false},"ui":{"N":false,"A":true,"B":"A","C":false,"D":false,"K":"A","I":true,"J":false}}'); window['flags'] = JSON.parse('{"5d40ae58":true,"978ce15d":150000.0,"fb00120d":true}'); window['cmsg'] = window['cmsg'] || { locale: "en", strings: {} };})();</script><script crossorigin="anonymous" src="_assets/6739744745921553.runtime.js" defer integrity="sha512-bqpY1LmdmlMpsHax/XmszZay4tC2HNNdrFh7UFETnnpQOqE7ET2Nt7pV6velBivkB8lbbwlK1OW14rFr/tCIPA==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"></script><script crossorigin="anonymous" src="_assets/c0feee7212ef7ec1.i3d79q.vendor.js" defer integrity="sha512-28VLsnzSrYuJHZcZS4tF/Vm43quL3JoVU591yX4OMeN65ce6A9IjvwR3BtwZHhvmCDvwDkREIIEow4jipBA70g==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"></script><script crossorigin="anonymous" src="_assets/11cd5fb04d2af30e.vendor.js" defer integrity="sha512-uKsoLg6Gbg2w3LJMmA1Eh6tolCWXk+wonzdhS/7DIaiRPCiOJeWfRyb+AlTYs/MswMJB0LND2zhQfYEufSCnOw==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"></script><script crossorigin="anonymous" src="_assets/3f2d7eb029511bb4.strings.js" integrity="sha512-l3KOEy6Q6p1WWWlLaE55JxDcTxauT4DH0WPTOu/Zmn/5/LHWRJi3rl/joqpjezai018C4TqyKHmQqsfDHiIuUg==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"></script><script crossorigin="anonymous" src="_assets/593da3d70609cf53.en.js" integrity="sha512-/PqLZOFLv1U5s/gzNjHQcoEKHpeH2E7DFwicqLeziO4w7wHuYqRPKE9U9N/mRSS330WsUjS6AOAzh8L0nIGrig==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"></script><script crossorigin="anonymous" src="_assets/ae19f8025f2838ea.js" defer integrity="sha512-umooGWchcO7yn8mWQwivmQiRdRm4FVLyXB2JeQlM1QV93LDX87tTtvM05gGZrR2ZdDg6SNn72LpdPABjjb7S3g==" nonce="4180bf65-6808-45bb-8cd1-7f487ad299f7"></script></body></html>
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+        <div class="bg-indigo-600 text-white p-6">
+            <h1 class="text-2xl md:text-3xl font-bold">Date Availability Collector</h1>
+            <p class="mt-2 opacity-90">Coordinate dates with your friends, one month at a time</p>
+        </div>
+        
+        <div class="p-6">
+            <!-- Month Navigation -->
+            <div class="flex justify-between items-center mb-6">
+                <button id="prevMonth" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-4 py-2 rounded-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Previous
+                </button>
+                <h2 id="currentMonth" class="text-xl md:text-2xl font-semibold text-gray-800"></h2>
+                <button id="nextMonth" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-4 py-2 rounded-lg flex items-center">
+                    Next
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Calendar -->
+            <div class="mb-8">
+                <div class="grid grid-cols-7 gap-1 mb-2 text-center">
+                    <div class="font-medium text-gray-500">Sun</div>
+                    <div class="font-medium text-gray-500">Mon</div>
+                    <div class="font-medium text-gray-500">Tue</div>
+                    <div class="font-medium text-gray-500">Wed</div>
+                    <div class="font-medium text-gray-500">Thu</div>
+                    <div class="font-medium text-gray-500">Fri</div>
+                    <div class="font-medium text-gray-500">Sat</div>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+            </div>
+            
+            <!-- Name Input -->
+            <div class="mb-6">
+                <label for="nameInput" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                <div class="flex">
+                    <input type="text" id="nameInput" class="flex-grow border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter your name">
+                    <button id="saveButton" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-lg transition-colors">
+                        Save My Availability
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Participants -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Participants</h3>
+                <div id="participantsList" class="space-y-3">
+                    <!-- Participants will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Availability Section -->
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+        <div class="bg-indigo-600 text-white p-4">
+            <h2 class="text-xl font-bold">Detailed Availability</h2>
+        </div>
+        <div class="p-6">
+            <div id="detailedAvailability" class="space-y-4">
+                <!-- Detailed availability will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Common Dates Section -->
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+        <div class="bg-green-600 text-white p-4">
+            <h2 class="text-xl font-bold">Common Availability</h2>
+        </div>
+        <div class="p-6">
+            <div id="commonDates" class="space-y-4">
+                <!-- Common dates will be shown here -->
+            </div>
+        </div>
+    </div>
+     <!-- Submission Log Section -->
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+        <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+            <h2 class="text-xl font-bold">Submission Log</h2>
+            <button id="toggleLogButton" class="bg-blue-500 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm">
+                Show/Hide
+            </button>
+        </div>
+        <div id="logContainer" class="p-6">
+            <div id="submissionLog" class="space-y-2">
+                <!-- Submission log will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Local Storage Notice -->
+    <div class="max-w-4xl mx-auto bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-8">
+        <div class="flex items-start">
+            <div class="flex-shrink-0 pt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">Important Note About Data Storage</h3>
+                <div class="mt-1 text-sm text-yellow-700">
+                    <p>This app stores data in your browser's local storage. This means:</p>
+                    <ul class="list-disc pl-5 mt-1 space-y-1">
+                        <li>Data is only visible on the device and browser you're currently using</li>
+                        <li>Other people using different devices won't see your submissions</li>
+                        <li>For shared viewing, everyone needs to use the same device/browser</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear All Data Button -->
+    <div class="max-w-4xl mx-auto mb-8 flex justify-center">
+        <button id="clearAllButton" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Clear All Availability Data
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let currentDate = new Date();
+            let selectedDates = [];
+            let participants = [];
+            let submissionLog = [];
+            
+            // DOM elements
+            const calendarGrid = document.getElementById('calendarGrid');
+            const currentMonthElement = document.getElementById('currentMonth');
+            const prevMonthButton = document.getElementById('prevMonth');
+            const nextMonthButton = document.getElementById('nextMonth');
+            const nameInput = document.getElementById('nameInput');
+            const saveButton = document.getElementById('saveButton');
+            const participantsList = document.getElementById('participantsList');
+            const detailedAvailability = document.getElementById('detailedAvailability');
+            const commonDates = document.getElementById('commonDates');
+            const submissionLogElement = document.getElementById('submissionLog');
+            const clearAllButton = document.getElementById('clearAllButton');
+            const toast = document.getElementById('toast');
+            const toggleLogButton = document.getElementById('toggleLogButton');
+            const logContainer = document.getElementById('logContainer');
+            
+            // Load saved data from localStorage
+            loadFromLocalStorage();
+            
+            // Initialize calendar
+            renderCalendar();
+            
+            // Event listeners
+            prevMonthButton.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+            
+            nextMonthButton.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+            
+            saveButton.addEventListener('click', saveAvailability);
+            
+            clearAllButton.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all availability data? This cannot be undone.')) {
+                    participants = [];
+                    submissionLog = [];
+                    saveToLocalStorage();
+                    renderCalendar();
+                    renderParticipants();
+                    renderDetailedAvailability();
+                    renderCommonDates();
+                    renderSubmissionLog();
+                    showToast('All data has been cleared');
+                }
+            });
+            
+            toggleLogButton.addEventListener('click', () => {
+                if (logContainer.style.display === 'none') {
+                    logContainer.style.display = 'block';
+                } else {
+                    logContainer.style.display = 'none';
+                }
+            });
+            
+            // Functions
+            function renderCalendar() {
+                // Clear previous calendar
+                calendarGrid.innerHTML = '';
+                
+                // Update month display
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                currentMonthElement.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+                
+                // Get first day of month and total days
+                const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                const totalDays = lastDay.getDate();
+                const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                
+                // Add empty cells for days before the first day of the month
+                for (let i = 0; i < startingDayOfWeek; i++) {
+                    const emptyCell = document.createElement('div');
+                    calendarGrid.appendChild(emptyCell);
+                }
+                
+                // Add cells for each day of the month
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                for (let day = 1; day <= totalDays; day++) {
+                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                    const dateString = formatDate(date);
+                    const isPastDate = date < today;
+                    
+                    const dayCell = document.createElement('div');
+                    dayCell.className = `calendar-day h-16 md:h-20 border rounded-lg flex flex-col ${
+                        isPastDate ? 'past-date' : 'cursor-pointer bg-indigo-50 hover:bg-indigo-100'
+                    }`;
+                    dayCell.dataset.date = dateString;
+                    
+                    // Day number
+                    const dayNumber = document.createElement('div');
+                    dayNumber.className = 'text-right p-1 font-medium';
+                    dayNumber.textContent = day;
+                    dayCell.appendChild(dayNumber);
+                    
+                    // Container for participant tags
+                    const tagsContainer = document.createElement('div');
+                    tagsContainer.className = 'flex flex-wrap gap-1 p-1 overflow-hidden';
+                    dayCell.appendChild(tagsContainer);
+                    
+                    // Add participant tags if any are available for this date
+                    participants.forEach(participant => {
+                        if (participant.dates.includes(dateString)) {
+                            const tag = document.createElement('div');
+                            tag.className = 'person-tag text-xs bg-indigo-500 text-white px-1 rounded truncate max-w-full';
+                            tag.textContent = participant.name;
+                            tagsContainer.appendChild(tag);
+                        }
+                    });
+                    
+                    if (!isPastDate) {
+                        dayCell.addEventListener('click', () => toggleDateSelection(dayCell, dateString));
+                    }
+                    
+                    calendarGrid.appendChild(dayCell);
+                }
+                
+                // Reset selected dates when changing months
+                selectedDates = [];
+                
+                // Highlight common dates on the calendar
+                highlightCommonDates();
+            }
+            
+            function toggleDateSelection(dayCell, dateString) {
+                const index = selectedDates.indexOf(dateString);
+                
+                if (index === -1) {
+                    // Add date
+                    selectedDates.push(dateString);
+                    dayCell.classList.add('selected');
+                } else {
+                    // Remove date
+                    selectedDates.splice(index, 1);
+                    dayCell.classList.remove('selected');
+                }
+            }
+            
+            function saveAvailability() {
+                const name = nameInput.value.trim();
+                
+                if (!name) {
+                    alert('Please enter your name');
+                    return;
+                }
+                
+                if (selectedDates.length === 0) {
+                    alert('Please select at least one date');
+                    return;
+                }
+                
+                // Sort selected dates
+                selectedDates.sort();
+                
+                // Check if participant already exists
+                const existingIndex = participants.findIndex(p => p.name === name);
+                let isUpdate = false;
+                
+                if (existingIndex !== -1) {
+                    // Update existing participant
+                    isUpdate = true;
+                    participants[existingIndex].dates = selectedDates.slice();
+                } else {
+                    // Add new participant
+                    participants.push({
+                        name: name,
+                        dates: selectedDates.slice()
+                    });
+                }
+                
+                // Add to submission log
+                const now = new Date();
+                submissionLog.push({
+                    name: name,
+                    timestamp: now.toISOString(),
+                    action: isUpdate ? 'updated' : 'submitted',
+                    dateCount: selectedDates.length
+                });
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Show toast notification
+                showToast(`Availability ${isUpdate ? 'updated' : 'saved'} successfully!`);
+                
+                // Clear selection and input
+                nameInput.value = '';
+                selectedDates = [];
+                
+                // Re-render everything
+                renderCalendar();
+                renderParticipants();
+                renderDetailedAvailability();
+                renderCommonDates();
+                renderSubmissionLog();
+            }
+            
+            function renderParticipants() {
+                participantsList.innerHTML = '';
+                
+                if (participants.length === 0) {
+                    const emptyMessage = document.createElement('p');
+                    emptyMessage.className = 'text-gray-500 italic';
+                    emptyMessage.textContent = 'No participants yet';
+                    participantsList.appendChild(emptyMessage);
+                    return;
+                }
+                
+                participants.forEach((participant, index) => {
+                    const participantCard = document.createElement('div');
+                    participantCard.className = 'bg-gray-50 rounded-lg p-3 flex justify-between items-start';
+                    
+                    const infoDiv = document.createElement('div');
+                    
+                    const nameElement = document.createElement('h4');
+                    nameElement.className = 'font-medium text-gray-800';
+                    nameElement.textContent = participant.name;
+                    infoDiv.appendChild(nameElement);
+                    
+                    const datesElement = document.createElement('p');
+                    datesElement.className = 'text-sm text-gray-600 mt-1';
+                    datesElement.textContent = `Available on ${participant.dates.length} date${participant.dates.length !== 1 ? 's' : ''}`;
+                    infoDiv.appendChild(datesElement);
+                    
+                    participantCard.appendChild(infoDiv);
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'text-red-500 hover:text-red-700';
+                    deleteButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    `;
+                    deleteButton.addEventListener('click', () => {
+                        // Add to log before removing
+                        submissionLog.push({
+                            name: participant.name,
+                            timestamp: new Date().toISOString(),
+                            action: 'removed',
+                            dateCount: 0
+                        });
+                        
+                        participants.splice(index, 1);
+                        saveToLocalStorage();
+                        renderCalendar();
+                        renderParticipants();
+                        renderDetailedAvailability();
+                        renderCommonDates();
+                        renderSubmissionLog();
+                        showToast('Participant removed');
+                    });
+                    
+                    participantCard.appendChild(deleteButton);
+                    participantsList.appendChild(participantCard);
+                });
+            }
+            
+            function renderDetailedAvailability() {
+                detailedAvailability.innerHTML = '';
+                
+                if (participants.length === 0) {
+                    const emptyMessage = document.createElement('p');
+                    emptyMessage.className = 'text-gray-500 italic';
+                    emptyMessage.textContent = 'No availability data yet';
+                    detailedAvailability.appendChild(emptyMessage);
+                    return;
+                }
+                
+                participants.forEach(participant => {
+                    const participantSection = document.createElement('div');
+                    participantSection.className = 'border rounded-lg p-4';
+                    
+                    const nameHeader = document.createElement('h3');
+                    nameHeader.className = 'font-medium text-lg text-gray-800 mb-2';
+                    nameHeader.textContent = participant.name;
+                    participantSection.appendChild(nameHeader);
+                    
+                    if (participant.dates.length === 0) {
+                        const noDates = document.createElement('p');
+                        noDates.className = 'text-gray-500 italic';
+                        noDates.textContent = 'No dates selected';
+                        participantSection.appendChild(noDates);
+                    } else {
+                        const datesContainer = document.createElement('div');
+                        datesContainer.className = 'flex flex-wrap gap-2';
+                        
+                        participant.dates.forEach(dateString => {
+                            const dateChip = document.createElement('div');
+                            dateChip.className = 'date-chip bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm';
+                            dateChip.textContent = formatDisplayDate(dateString);
+                            datesContainer.appendChild(dateChip);
+                        });
+                        
+                        participantSection.appendChild(datesContainer);
+                    }
+                    
+                    detailedAvailability.appendChild(participantSection);
+                });
+            }
+            
+            function renderCommonDates() {
+                commonDates.innerHTML = '';
+                
+                if (participants.length < 2) {
+                    const emptyMessage = document.createElement('p');
+                    emptyMessage.className = 'text-gray-500 italic';
+                    emptyMessage.textContent = 'Need at least 2 participants to find common dates';
+                    commonDates.appendChild(emptyMessage);
+                    return;
+                }
+                
+                // Find all unique dates
+                const allDates = new Set();
+                participants.forEach(participant => {
+                    participant.dates.forEach(date => allDates.add(date));
+                });
+                
+                // Count availability for each date
+                const dateAvailability = {};
+                allDates.forEach(date => {
+                    dateAvailability[date] = {
+                        count: 0,
+                        people: []
+                    };
+                });
+                
+                participants.forEach(participant => {
+                    participant.dates.forEach(date => {
+                        dateAvailability[date].count++;
+                        dateAvailability[date].people.push(participant.name);
+                    });
+                });
+                
+                // Sort dates by count (most available first)
+                const sortedDates = Object.keys(dateAvailability).sort((a, b) => {
+                    // First by count (descending)
+                    if (dateAvailability[b].count !== dateAvailability[a].count) {
+                        return dateAvailability[b].count - dateAvailability[a].count;
+                    }
+                    // Then by date (ascending)
+                    return a.localeCompare(b);
+                });
+                
+                // Group dates by availability count
+                const groupedDates = {};
+                sortedDates.forEach(date => {
+                    const count = dateAvailability[date].count;
+                    if (!groupedDates[count]) {
+                        groupedDates[count] = [];
+                    }
+                    groupedDates[count].push({
+                        date,
+                        people: dateAvailability[date].people
+                    });
+                });
+                
+                // Display grouped dates
+                const counts = Object.keys(groupedDates).sort((a, b) => b - a);
+                
+                if (counts.length === 0) {
+                    const emptyMessage = document.createElement('p');
+                    emptyMessage.className = 'text-gray-500 italic';
+                    emptyMessage.textContent = 'No common dates found';
+                    commonDates.appendChild(emptyMessage);
+                    return;
+                }
+                
+                counts.forEach(count => {
+                    const group = document.createElement('div');
+                    group.className = 'mb-6';
+                    
+                    const header = document.createElement('h3');
+                    const percentage = Math.round((count / participants.length) * 100);
+                    header.className = 'font-medium text-lg mb-2';
+                    header.innerHTML = `<span class="text-green-700">${count}/${participants.length}</span> people available (${percentage}%)`;
+                    group.appendChild(header);
+                    
+                    const datesContainer = document.createElement('div');
+                    datesContainer.className = 'flex flex-wrap gap-2';
+                    
+                    groupedDates[count].forEach(item => {
+                        const dateCard = document.createElement('div');
+                        dateCard.className = 'bg-white border rounded-lg p-3 shadow-sm cursor-pointer hover:bg-gray-50';
+                        
+                        const dateHeader = document.createElement('div');
+                        dateHeader.className = 'font-medium text-indigo-800 mb-2';
+                        dateHeader.textContent = formatDisplayDate(item.date);
+                        dateCard.appendChild(dateHeader);
+                        
+                        const peopleList = document.createElement('div');
+                        peopleList.className = 'text-sm text-gray-600';
+                        peopleList.textContent = item.people.join(', ');
+                        dateCard.appendChild(peopleList);
+                        
+                        // Add click handler to highlight this date on the calendar
+                        dateCard.addEventListener('click', () => {
+                            // Scroll to calendar
+                            calendarGrid.scrollIntoView({ behavior: 'smooth' });
+                            
+                            // Find the month of this date
+                            const dateObj = new Date(item.date);
+                            if (dateObj.getMonth() !== currentDate.getMonth() || 
+                                dateObj.getFullYear() !== currentDate.getFullYear()) {
+                                // Update calendar to show this month
+                                currentDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
+                                renderCalendar();
+                            }
+                            
+                            // Flash highlight the date cell
+                            setTimeout(() => {
+                                const dateCell = document.querySelector(`.calendar-day[data-date="${item.date}"]`);
+                                if (dateCell) {
+                                    dateCell.classList.add('highlight-date');
+                                    setTimeout(() => {
+                                        dateCell.classList.remove('highlight-date');
+                                    }, 2000);
+                                }
+                            }, 300);
+                        });
+                        
+                        datesContainer.appendChild(dateCard);
+                    });
+                    
+                    group.appendChild(datesContainer);
+                    commonDates.appendChild(group);
+                });
+            }
+            
+            function renderSubmissionLog() {
+                submissionLogElement.innerHTML = '';
+                
+                if (submissionLog.length === 0) {
+                    const emptyMessage = document.createElement('p');
+                    emptyMessage.className = 'text-gray-500 italic';
+                    emptyMessage.textContent = 'No submission activity yet';
+                    submissionLogElement.appendChild(emptyMessage);
+                    return;
+                }
+                
+                // Sort log entries by timestamp (newest first)
+                const sortedLog = [...submissionLog].sort((a, b) => {
+                    return new Date(b.timestamp) - new Date(a.timestamp);
+                });
+                
+                sortedLog.forEach(entry => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500';
+                    
+                    const timestamp = new Date(entry.timestamp);
+                    const formattedDate = timestamp.toLocaleDateString();
+                    const formattedTime = timestamp.toLocaleTimeString();
+                    
+                    let actionText = '';
+                    let actionClass = '';
+                    
+                    switch(entry.action) {
+                        case 'submitted':
+                            actionText = 'submitted availability';
+                            actionClass = 'text-green-600';
+                            break;
+                        case 'updated':
+                            actionText = 'updated availability';
+                            actionClass = 'text-blue-600';
+                            break;
+                        case 'removed':
+                            actionText = 'was removed';
+                            actionClass = 'text-red-600';
+                            break;
+                    }
+                    
+                    logEntry.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-medium">${entry.name}</span> 
+                                <span class="${actionClass}">${actionText}</span>
+                                ${entry.action !== 'removed' ? `<span class="text-gray-600">(${entry.dateCount} dates)</span>` : ''}
+                            </div>
+                            <div class="text-xs text-gray-500">${formattedDate} at ${formattedTime}</div>
+                        </div>
+                    `;
+                    
+                    submissionLogElement.appendChild(logEntry);
+                });
+            }
+            
+            function highlightCommonDates() {
+                if (participants.length < 2) return;
+                
+                // Count availability for each date
+                const dateAvailability = {};
+                
+                participants.forEach(participant => {
+                    participant.dates.forEach(date => {
+                        if (!dateAvailability[date]) {
+                            dateAvailability[date] = 0;
+                        }
+                        dateAvailability[date]++;
+                    });
+                });
+                
+                // Find the maximum availability count
+                const maxCount = Math.max(...Object.values(dateAvailability));
+                
+                // Highlight dates with the maximum count
+                if (maxCount > 1) {
+                    Object.keys(dateAvailability).forEach(date => {
+                        if (dateAvailability[date] === maxCount) {
+                            const dateCell = document.querySelector(`.calendar-day[data-date="${date}"]`);
+                            if (dateCell) {
+                                const indicator = document.createElement('div');
+                                indicator.className = 'absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full transform translate-x-1 -translate-y-1';
+                                dateCell.style.position = 'relative';
+                                dateCell.appendChild(indicator);
+                            }
+                        }
+                    });
+                }
+            }
+            
+            function formatDate(date) {
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            }
+            
+            function formatDisplayDate(dateString) {
+                const date = new Date(dateString);
+                const options = { weekday: 'short', month: 'short', day: 'numeric' };
+                return date.toLocaleDateString('en-US', options);
+            }
+            
+            function saveToLocalStorage() {
+                try {
+                    localStorage.setItem('dateAvailabilityData', JSON.stringify({
+                        participants: participants,
+                        submissionLog: submissionLog
+                    }));
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                }
+            }
+            
+            function loadFromLocalStorage() {
+                try {
+                    const savedData = localStorage.getItem('dateAvailabilityData');
+                    if (savedData) {
+                        const parsedData = JSON.parse(savedData);
+                        participants = parsedData.participants || [];
+                        submissionLog = parsedData.submissionLog || [];
+                    }
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                    participants = [];
+                    submissionLog = [];
+                }
+            }
+            
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.remove('hidden');
+                
+                // Remove the toast after animation completes
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3500);
+            }
+            
+            // Initial renders
+            renderParticipants();
+            renderDetailedAvailability();
+            renderCommonDates();
+            renderSubmissionLog();
+        });
+    </script>
+</body>
+</html>
